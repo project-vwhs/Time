@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valley-Wide Health Systems Timeline</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .fade-transition {
+            transition: opacity 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-10">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between">
+            <h1 class="text-2xl md:text-3xl font-bold text-slate-800 text-center md:text-left">
+                Valley-Wide Health Systems Timeline
+            </h1>
+            <p class="text-slate-500 font-medium mt-2 md:mt-0">1976 — 2023</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex flex-col items-center justify-center p-4 sm:p-8">
+        <div class="w-full max-w-5xl bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100 flex flex-col">
+            
+            <!-- Slideshow Container -->
+            <div class="relative bg-slate-50 w-full aspect-[4/3] sm:aspect-[16/9] flex items-center justify-center group overflow-hidden">
+                
+                <!-- Loading Indicator (shown initially) -->
+                <div id="loader" class="absolute inset-0 flex items-center justify-center bg-slate-50 z-20">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                </div>
+
+                <!-- Main Image -->
+                <img id="slide-image" class="w-full h-full object-contain fade-transition opacity-0" src="" alt="Timeline Map">
+                
+                <!-- Year Overlay Badge -->
+                <div class="absolute top-4 sm:top-6 left-4 sm:left-6 bg-blue-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-xl shadow-lg font-bold text-xl sm:text-3xl tracking-wider transition-all transform z-10">
+                    <span id="slide-year">----</span>
+                </div>
+
+                <!-- Previous Arrow -->
+                <button onclick="prevSlide()" class="absolute left-2 sm:left-4 p-2 sm:p-3 rounded-full bg-white/80 hover:bg-white text-slate-700 shadow-md transform -translate-y-1/2 top-1/2 opacity-0 group-hover:opacity-100 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 z-10" aria-label="Previous image">
+                    <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+
+                <!-- Next Arrow -->
+                <button onclick="nextSlide()" class="absolute right-2 sm:right-4 p-2 sm:p-3 rounded-full bg-white/80 hover:bg-white text-slate-700 shadow-md transform -translate-y-1/2 top-1/2 opacity-0 group-hover:opacity-100 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 z-10" aria-label="Next image">
+                    <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+
+            </div>
+
+            <!-- Controls and Progress -->
+            <div class="p-4 sm:p-6 bg-white flex flex-col sm:flex-row items-center justify-between gap-4">
+                
+                <!-- Play/Pause Button -->
+                <button id="play-pause-btn" onclick="togglePlay()" class="flex items-center gap-2 px-6 py-3 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto justify-center">
+                    <svg id="play-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                    </svg>
+                    <svg id="pause-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                    <span id="play-pause-text">Pause Slideshow</span>
+                </button>
+
+                <!-- Progress Tracker / Timeline Dots -->
+                <div class="flex-grow flex justify-center flex-wrap gap-2 w-full sm:w-auto px-2">
+                    <!-- Dots will be generated here -->
+                </div>
+
+                <div class="text-sm font-medium text-slate-500 tabular-nums w-full sm:w-auto text-center sm:text-right">
+                    Slide <span id="current-slide-num">1</span> of <span id="total-slide-num">13</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center p-6 text-slate-500 text-sm">
+        <p>Interactive Service Area Timeline. Images loaded directly from Google Drive.</p>
+    </footer>
+
+    <script>
+        // Slides data sorted chronologically
+        const slides = [
+            { year: 1976, id: '1bRa-ksIPrJMWVkIgLQWEJfJTv2wobkK3' },
+            { year: 1977, id: '1alm6pIJ4YlK3EhoDSeKF8st28Tolw8hB' },
+            { year: 1983, id: '1c-47cxTxZnmnKNorZxeDVsqHU_QBaNbH' },
+            { year: 1988, id: '13RpXva0p6Fz7hbRkYU1XMAWB4Sy1I6w5' },
+            { year: 1993, id: '1XNqSpmI1bz0RlxLT_3NJxVv4oqjnzqwH' },
+            { year: 1995, id: '1dZhILuR65w3Md5YxX4FRTm1NXRBnRiet' },
+            { year: 1996, id: '196sXBAEAK2dyB2W9TKaXNO9qEOhVVxiO' },
+            { year: 1997, id: '1-vGIIAhNlNLm0_uyXLPxBfLB66gyo-e7' },
+            { year: 1998, id: '1hO6-m2midxrsqXJl0Kmq9vzfGhNQvx3o' },
+            { year: 2008, id: '1p5qs8ipIEMkqcy_BAHOFtJpoZeG2nI2S' },
+            { year: 2019, id: '1ejnKYfcRw2SeP5vhvzqOPA6oVDtKPoSX' },
+            { year: 2020, id: '1Kr7Kb89quEgYs_VNAWjLwUhygOf_49iH' },
+            { year: 2023, id: '1CHkHOprSJ_a8IzM9tMBAh5SLwAlEaESq' }
+        ].map(slide => ({
+            year: slide.year,
+            // Updated URL endpoint to bypass Google Drive's iframe blocks
+            url: `https://drive.google.com/thumbnail?id=${slide.id}&sz=w1920`
+        }));
+
+        let currentIndex = 0;
+        let isPlaying = true;
+        let slideInterval;
+        const intervalTime = 4000; // 4 seconds per slide
+
+        const imageElement = document.getElementById('slide-image');
+        const yearElement = document.getElementById('slide-year');
+        const loader = document.getElementById('loader');
+        const currentNumEl = document.getElementById('current-slide-num');
+        const totalNumEl = document.getElementById('total-slide-num');
+        const dotsContainer = document.querySelector('.flex-grow.flex');
+        
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        const playPauseText = document.getElementById('play-pause-text');
+
+        // Initialize setup
+        function init() {
+            totalNumEl.textContent = slides.length;
+            
+            // Generate dot indicators
+            slides.forEach((slide, index) => {
+                const dot = document.createElement('button');
+                dot.className = `w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 ${index === 0 ? 'bg-blue-600 scale-125' : 'bg-slate-300 hover:bg-slate-400'}`;
+                dot.setAttribute('aria-label', `Go to slide ${slide.year}`);
+                dot.onclick = () => jumpToSlide(index);
+                dotsContainer.appendChild(dot);
+            });
+
+            // Preload images to prevent flickering
+            preloadImages();
+            
+            // Show first slide
+            renderSlide();
+            
+            // Start autoplay
+            startSlideshow();
+        }
+
+        function preloadImages() {
+            slides.forEach(slide => {
+                const img = new Image();
+                img.src = slide.url;
+            });
+        }
+
+        function renderSlide() {
+            const slide = slides[currentIndex];
+            
+            // Fade out
+            imageElement.classList.remove('opacity-100');
+            imageElement.classList.add('opacity-0');
+            loader.style.display = 'flex'; // Show loading spinner
+            
+            // Wait brief moment for fade out, then change source
+            setTimeout(() => {
+                yearElement.textContent = slide.year;
+                currentNumEl.textContent = currentIndex + 1;
+                updateDots();
+                
+                // Once loaded, fade in and hide loader
+                imageElement.onload = () => {
+                    loader.style.display = 'none';
+                    imageElement.classList.remove('opacity-0');
+                    imageElement.classList.add('opacity-100');
+                };
+
+                // Fallback if image fails
+                imageElement.onerror = () => {
+                    loader.style.display = 'none';
+                    imageElement.src = 'https://via.placeholder.com/800x600?text=Image+Not+Found';
+                    imageElement.classList.remove('opacity-0');
+                    imageElement.classList.add('opacity-100');
+                };
+                
+                // Set source AFTER attaching handlers
+                imageElement.src = slide.url;
+            }, 300);
+        }
+
+        function updateDots() {
+            const dots = dotsContainer.children;
+            for (let i = 0; i < dots.length; i++) {
+                if (i === currentIndex) {
+                    dots[i].className = 'w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-600 scale-125';
+                } else {
+                    dots[i].className = 'w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-300 hover:bg-slate-400';
+                }
+            }
+        }
+
+        function nextSlide() {
+            currentIndex = (currentIndex + 1) % slides.length;
+            renderSlide();
+            resetInterval();
+        }
+
+        function prevSlide() {
+            currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+            renderSlide();
+            resetInterval();
+        }
+
+        function jumpToSlide(index) {
+            currentIndex = index;
+            renderSlide();
+            resetInterval();
+        }
+
+        function togglePlay() {
+            if (isPlaying) {
+                stopSlideshow();
+            } else {
+                startSlideshow();
+                nextSlide(); // Immediately move to next slide upon play
+            }
+            updatePlayButtonUI();
+        }
+
+        function startSlideshow() {
+            isPlaying = true;
+            slideInterval = setInterval(nextSlide, intervalTime);
+        }
+
+        function stopSlideshow() {
+            isPlaying = false;
+            clearInterval(slideInterval);
+        }
+
+        function resetInterval() {
+            if (isPlaying) {
+                clearInterval(slideInterval);
+                slideInterval = setInterval(nextSlide, intervalTime);
+            }
+        }
+
+        function updatePlayButtonUI() {
+            if (isPlaying) {
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+                playPauseText.textContent = "Pause Slideshow";
+            } else {
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+                playPauseText.textContent = "Play Slideshow";
+            }
+        }
+
+        // Add keyboard support for navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+            if (e.key === ' ') {
+                e.preventDefault();
+                togglePlay();
+            }
+        });
+
+        // Initialize when DOM is ready
+        window.addEventListener('DOMContentLoaded', init);
+
+    </script>
+</body>
+</html>
+</html>
