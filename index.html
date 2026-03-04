@@ -14,6 +14,18 @@
         .fade-transition {
             transition: opacity 0.5s ease-in-out;
         }
+        /* Ensure the container maintains a solid structure */
+        .image-container {
+            aspect-ratio: 16/9;
+            min-height: 400px;
+            max-height: 75vh;
+        }
+        @media (max-width: 640px) {
+            .image-container {
+                aspect-ratio: 4/3;
+                min-height: 300px;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col text-slate-800">
@@ -29,15 +41,27 @@
     </header>
 
     <!-- Main Content -->
-    <main class="flex-grow flex flex-col items-center justify-center p-4 sm:p-8">
+    <main class="flex-grow flex flex-col items-center justify-center p-4 sm:p-8 w-full">
         <div class="w-full max-w-5xl bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100 flex flex-col">
             
             <!-- Slideshow Container -->
-            <div class="relative bg-slate-50 w-full aspect-[4/3] sm:aspect-[16/9] flex items-center justify-center group overflow-hidden">
+            <div class="relative bg-slate-100 w-full image-container flex items-center justify-center group overflow-hidden">
                 
-                <!-- Loading Indicator (shown initially) -->
-                <div id="loader" class="absolute inset-0 flex items-center justify-center bg-slate-50 z-20">
+                <!-- Loading Indicator -->
+                <div id="loader" class="absolute inset-0 flex items-center justify-center bg-slate-100 z-20">
                     <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                </div>
+
+                <!-- Error Fallback Message -->
+                <div id="error-message" class="absolute inset-0 flex-col items-center justify-center bg-slate-100 z-20 hidden p-6 text-center">
+                    <svg class="w-16 h-16 text-slate-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <p class="text-lg font-semibold text-slate-700">Image failed to load</p>
+                    <p class="text-sm text-slate-500 mt-2 mb-4">Google Drive permissions may be blocking direct embedding.</p>
+                    <a id="direct-link" href="#" target="_blank" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow font-medium">
+                        Open Map in New Tab
+                    </a>
                 </div>
 
                 <!-- Main Image -->
@@ -49,14 +73,14 @@
                 </div>
 
                 <!-- Previous Arrow -->
-                <button onclick="prevSlide()" class="absolute left-2 sm:left-4 p-2 sm:p-3 rounded-full bg-white/80 hover:bg-white text-slate-700 shadow-md transform -translate-y-1/2 top-1/2 opacity-0 group-hover:opacity-100 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 z-10" aria-label="Previous image">
+                <button onclick="prevSlide()" class="absolute left-2 sm:left-4 p-2 sm:p-3 rounded-full bg-white/90 hover:bg-white text-slate-800 shadow-lg transform -translate-y-1/2 top-1/2 opacity-0 group-hover:opacity-100 transition duration-300 focus:outline-none focus:ring-4 focus:ring-blue-500/50 z-10" aria-label="Previous image">
                     <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                     </svg>
                 </button>
 
                 <!-- Next Arrow -->
-                <button onclick="nextSlide()" class="absolute right-2 sm:right-4 p-2 sm:p-3 rounded-full bg-white/80 hover:bg-white text-slate-700 shadow-md transform -translate-y-1/2 top-1/2 opacity-0 group-hover:opacity-100 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 z-10" aria-label="Next image">
+                <button onclick="nextSlide()" class="absolute right-2 sm:right-4 p-2 sm:p-3 rounded-full bg-white/90 hover:bg-white text-slate-800 shadow-lg transform -translate-y-1/2 top-1/2 opacity-0 group-hover:opacity-100 transition duration-300 focus:outline-none focus:ring-4 focus:ring-blue-500/50 z-10" aria-label="Next image">
                     <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
@@ -64,26 +88,29 @@
 
             </div>
 
-            <!-- Controls and Progress -->
-            <div class="p-4 sm:p-6 bg-white flex flex-col sm:flex-row items-center justify-between gap-4">
+            <!-- Controls and Progress (Fixed Layout using Grid) -->
+            <div class="p-4 sm:p-6 bg-white grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
                 
                 <!-- Play/Pause Button -->
-                <button id="play-pause-btn" onclick="togglePlay()" class="flex items-center gap-2 px-6 py-3 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto justify-center">
-                    <svg id="play-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
-                    </svg>
-                    <svg id="pause-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                    </svg>
-                    <span id="play-pause-text">Pause Slideshow</span>
-                </button>
+                <div class="flex justify-center md:justify-start">
+                    <button id="play-pause-btn" onclick="togglePlay()" class="flex items-center gap-2 px-6 py-3 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap w-full md:w-auto justify-center">
+                        <svg id="play-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                        </svg>
+                        <svg id="pause-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                        <span id="play-pause-text">Pause Slideshow</span>
+                    </button>
+                </div>
 
                 <!-- Progress Tracker / Timeline Dots -->
-                <div class="flex-grow flex justify-center flex-wrap gap-2 w-full sm:w-auto px-2">
+                <div class="flex justify-center flex-wrap gap-2 md:gap-3" id="dots-container">
                     <!-- Dots will be generated here -->
                 </div>
 
-                <div class="text-sm font-medium text-slate-500 tabular-nums w-full sm:w-auto text-center sm:text-right">
+                <!-- Slide Counter -->
+                <div class="flex justify-center md:justify-end text-sm font-medium text-slate-500 tabular-nums whitespace-nowrap">
                     Slide <span id="current-slide-num">1</span> of <span id="total-slide-num">13</span>
                 </div>
             </div>
@@ -113,8 +140,9 @@
             { year: 2023, id: '1CHkHOprSJ_a8IzM9tMBAh5SLwAlEaESq' }
         ].map(slide => ({
             year: slide.year,
-            // Updated URL endpoint to bypass Google Drive's iframe blocks
-            url: `https://drive.google.com/thumbnail?id=${slide.id}&sz=w1920`
+            // Using Google's image delivery network (lh3) which is highly reliable for embedding Drive photos
+            url: `https://lh3.googleusercontent.com/d/${slide.id}`,
+            originalDriveLink: `https://drive.google.com/file/d/${slide.id}/view?usp=sharing`
         }));
 
         let currentIndex = 0;
@@ -125,9 +153,11 @@
         const imageElement = document.getElementById('slide-image');
         const yearElement = document.getElementById('slide-year');
         const loader = document.getElementById('loader');
+        const errorMessage = document.getElementById('error-message');
+        const directLink = document.getElementById('direct-link');
         const currentNumEl = document.getElementById('current-slide-num');
         const totalNumEl = document.getElementById('total-slide-num');
-        const dotsContainer = document.querySelector('.flex-grow.flex');
+        const dotsContainer = document.getElementById('dots-container');
         
         const playIcon = document.getElementById('play-icon');
         const pauseIcon = document.getElementById('pause-icon');
@@ -140,15 +170,12 @@
             // Generate dot indicators
             slides.forEach((slide, index) => {
                 const dot = document.createElement('button');
-                dot.className = `w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 ${index === 0 ? 'bg-blue-600 scale-125' : 'bg-slate-300 hover:bg-slate-400'}`;
+                dot.className = `w-3 h-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 ${index === 0 ? 'bg-blue-600 scale-125' : 'bg-slate-300 hover:bg-slate-400'}`;
                 dot.setAttribute('aria-label', `Go to slide ${slide.year}`);
                 dot.onclick = () => jumpToSlide(index);
                 dotsContainer.appendChild(dot);
             });
 
-            // Preload images to prevent flickering
-            preloadImages();
-            
             // Show first slide
             renderSlide();
             
@@ -156,43 +183,42 @@
             startSlideshow();
         }
 
-        function preloadImages() {
-            slides.forEach(slide => {
-                const img = new Image();
-                img.src = slide.url;
-            });
-        }
-
         function renderSlide() {
             const slide = slides[currentIndex];
             
-            // Fade out
+            // Fade out current image and show loader
             imageElement.classList.remove('opacity-100');
             imageElement.classList.add('opacity-0');
-            loader.style.display = 'flex'; // Show loading spinner
+            errorMessage.style.display = 'none';
+            loader.style.display = 'flex';
             
-            // Wait brief moment for fade out, then change source
+            // Wait a brief moment for fade out animation
             setTimeout(() => {
                 yearElement.textContent = slide.year;
                 currentNumEl.textContent = currentIndex + 1;
                 updateDots();
                 
-                // Once loaded, fade in and hide loader
+                // Set handlers before setting source
                 imageElement.onload = () => {
                     loader.style.display = 'none';
+                    errorMessage.style.display = 'none';
                     imageElement.classList.remove('opacity-0');
                     imageElement.classList.add('opacity-100');
                 };
 
-                // Fallback if image fails
+                // Fallback if the direct embed fails (e.g. strict Drive permissions)
                 imageElement.onerror = () => {
                     loader.style.display = 'none';
-                    imageElement.src = 'https://via.placeholder.com/800x600?text=Image+Not+Found';
-                    imageElement.classList.remove('opacity-0');
-                    imageElement.classList.add('opacity-100');
+                    imageElement.classList.remove('opacity-100');
+                    imageElement.classList.add('opacity-0');
+                    errorMessage.style.display = 'flex';
+                    directLink.href = slide.originalDriveLink;
+                    
+                    // Stop slideshow if an error occurs so the user has time to click the link
+                    if(isPlaying) togglePlay(); 
                 };
                 
-                // Set source AFTER attaching handlers
+                // Trigger the image load
                 imageElement.src = slide.url;
             }, 300);
         }
@@ -201,9 +227,9 @@
             const dots = dotsContainer.children;
             for (let i = 0; i < dots.length; i++) {
                 if (i === currentIndex) {
-                    dots[i].className = 'w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-600 scale-125';
+                    dots[i].className = 'w-3 h-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-600 scale-125';
                 } else {
-                    dots[i].className = 'w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-300 hover:bg-slate-400';
+                    dots[i].className = 'w-3 h-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-300 hover:bg-slate-400';
                 }
             }
         }
@@ -230,8 +256,10 @@
             if (isPlaying) {
                 stopSlideshow();
             } else {
+                // Remove error message if trying to play again
+                errorMessage.style.display = 'none';
                 startSlideshow();
-                nextSlide(); // Immediately move to next slide upon play
+                nextSlide(); 
             }
             updatePlayButtonUI();
         }
@@ -280,5 +308,4 @@
 
     </script>
 </body>
-</html>
 </html>
